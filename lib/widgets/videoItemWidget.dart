@@ -6,7 +6,7 @@ import 'package:jewtube/util/Resources.dart';
 import 'package:jewtube/widgets/subscribe.dart';
 
 class VideoItemWidget extends StatefulWidget {
-  VideoItemWidget(this.videoModel, this.onClick,this.onSub);
+  VideoItemWidget(this.videoModel, this.onClick, this.onSub);
   final VideoModel videoModel;
   Function onClick;
   Function onSub;
@@ -43,9 +43,10 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
                 //   fit: BoxFit.cover,
                 // ),
 
+                //thumbnail
                 child: CachedNetworkImage(
                   fit: BoxFit.cover,
-                  height: height * 0.25,
+                  height: height * 0.35,
                   width: width,
                   imageUrl: widget.videoModel.thumbNail,
                   progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -57,6 +58,7 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
                   widget.onClick();
                 },
               ),
+              //Row below thumbnail: include circular icon, videotitle and description
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
@@ -64,53 +66,52 @@ class _VideoItemWidgetState extends State<VideoItemWidget> {
                   child: Row(
                     // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Expanded(
-                          flex: 1,
-                          child: CircleAvatar(
-                            radius: 30,
-                            backgroundImage:
-                                widget.videoModel.channelImage == "" ||
-                                        widget.videoModel.channelImage == null
-                                    ? AssetImage("assets/no_img.png")
-                                    : CachedNetworkImageProvider(
-                                        widget.videoModel.channelImage),
-                          )),
-                      Expanded(
-                        flex: 4,
+                      CircleAvatar(
+                        radius: 27,
+                        backgroundImage: widget.videoModel.channelImage == "" ||
+                                widget.videoModel.channelImage == null
+                            ? AssetImage("assets/no_img.png")
+                            : CachedNetworkImageProvider(
+                                widget.videoModel.channelImage),
+                      ),
+                      Flexible(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.only(
+                              top: 8.0, left: 14, bottom: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
                                 widget.videoModel.videoTitle,
                                 style: TextStyle(fontWeight: FontWeight.bold),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(
+                                height: 4,
                               ),
                               Text(widget.videoModel.channelName)
                             ],
                           ),
                         ),
                       ),
-                      Expanded(
-                        flex: 3,
-                        child: SubscribeWidget(
-                          widget.videoModel.sub,
-                          onClick: (status) async {
-                            Response response = await Dio().post(
-                                "http://${Resources.BASE_URL}/subscribe/add",
-                                data: {
-                                  "userID": Resources.userID,
-                                  "ChannelID": widget.videoModel.channelID
-                                });
+                      // Spacer(),
+                      // SubscribeWidget(
+                      //   widget.videoModel.sub,
+                      //   onClick: (status) async {
+                      //     Response response = await Dio().post(
+                      //         "http://${Resources.BASE_URL}/subscribe/add",
+                      //         data: {
+                      //           "userID": Resources.userID,
+                      //           "ChannelID": widget.videoModel.channelID
+                      //         });
 
-                            setState(() {
-                              widget.videoModel.sub = status;
-                              widget.onSub();
-                            });
-                               
-                          },
-                        ),
-                      )
+                      //     setState(() {
+                      //       widget.videoModel.sub = status;
+                      //       widget.onSub();
+                      //     });
+                      //   },
+                      // ),
                     ],
                   ),
                 ),

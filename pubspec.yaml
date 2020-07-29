@@ -45,6 +45,8 @@ dependencies:
   firebase_analytics: 5.0.11
   flappy_search_bar: ^1.7.2
   video_thumbnail: ^0.2.1
+  flutter_share: ^1.0.2+1
+  meta: ^1.2.2
   
 dev_dependencies:
   flutter_test:

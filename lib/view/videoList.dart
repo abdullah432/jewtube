@@ -100,23 +100,29 @@ class _VideoListScreenState extends State<VideoListScreen> {
             ? RefreshIndicator(
                 onRefresh: getAllVideos,
                 child: ListView.builder(
-                
                     itemCount: _videoList.length,
                     itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 5,
-                        child: VideoItemWidget(_videoList[index], () {
-                          Resources.navigationKey.currentState.pushNamed(
-                              '/player',
-                              arguments: _videoList[index]);
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (builder) =>
-                          //             VideoPlayerScreen(_videoList[index])));
-                        }, () {
-                          getAllVideos();
-                        }),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        //I convert Car to Container to remove elevation and match to design
+                        child: Container(
+                          // elevation: 5,
+                          child: VideoItemWidget(_videoList[index], () {
+                            // Resources.navigationKey.currentState.pushNamed(
+                            //     '/player',
+                            //     arguments: _videoList[index]);
+                            print(_videoList[index].videoURL);
+                            print(_videoList[index].channelID);
+                            print(_videoList[index]);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (builder) =>
+                                        VideoPlayerScreen(videoModel: _videoList[index])));
+                          }, () {
+                            getAllVideos();
+                          }),
+                        ),
                       );
                     }),
               )

@@ -371,10 +371,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               items: [
-                bmnav.BottomNavItem(Icons.home),
-                bmnav.BottomNavItem(Icons.whatshot),
-                bmnav.BottomNavItem(Icons.subscriptions),
-                bmnav.BottomNavItem(Icons.folder)
+                bmnav.BottomNavItem(icon: Icons.home, label: 'Home'),
+                // bmnav.BottomNavItem(Icons.whatshot),
+                bmnav.BottomNavItem(icon: Icons.category, label: 'Categories'),
+                bmnav.BottomNavItem(icon: Icons.subscriptions, label: 'Subscriptions'),
+                bmnav.BottomNavItem(icon: Icons.file_download, label: 'Downloads')
               ],
             ),
             floatingActionButton: Resources.isAdmin
