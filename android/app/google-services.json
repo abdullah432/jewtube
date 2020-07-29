@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "673312298512",
+    "firebase_url": "https://jewtube-76d06.firebaseio.com",
+    "project_id": "jewtube-76d06",
+    "storage_bucket": "jewtube-76d06.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:673312298512:android:869ff15c5ee0a0329edc95",
+        "android_client_info": {
+          "package_name": "com.sevensynco.jewtube"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "673312298512-pjvr1k22asderi8qtkl9p24gvjhpko3h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvbnX3iiZxJt0miln0SfqJy45YuPS8Bsc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "673312298512-pjvr1k22asderi8qtkl9p24gvjhpko3h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
