@@ -15,26 +15,32 @@ Future<Map> getVideos(String path, {bool needSubsInQuery = false}) async {
   List<Channel> channelList = List();
   List<String> channelIDs = List();
   var subArray = List();
+
+  //retrieve subscribed channel list
   if (Resources.userID != "") {
     Response sub = await Dio()
         .get("http://${Resources.BASE_URL}/subscribe/${Resources.userID}");
-        
+
     print(sub.data);
     if (sub.data != null) {
       subArray = sub.data['channel'];
     }
   }
 
-  Response response;
   print(needSubsInQuery);
+  print("Subscribed channels"+subArray.toString());
+
+
+  Response response;
   print(path);
-    print(subArray);
+
   if (needSubsInQuery) {
+    //if need only subscribe channel videos
     response = await Dio().post(path, data: {"channelIDs": subArray});
   } else {
     response = await Dio().get(path);
   }
-   print("QQQQQQQQQQQQQQQQQQQQQQQQQQ");
+  print("Response Data");
   print(response.data);
   if (response.data != null && response.data is List) {
     response.data.forEach((video) {
