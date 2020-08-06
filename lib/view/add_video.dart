@@ -96,7 +96,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                 timeInSecForIos: 1,
                 textColor: Colors.white,
                 fontSize: 16.0);
-            Navigator.of(context).pushReplacementNamed(HOME);
+            // Navigator.of(context).pushReplacementNamed(HOME);
           } else {
             Fluttertoast.showToast(
                 msg: "Upload Error",
@@ -123,30 +123,23 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // String channel = ModalRoute.of(context).settings.arguments;
-    // if (!init) {
-    //   init = true;
-    //   setState(() {
-    //     channelID = channel;
-    //   });
-    // }
-
     var sysWidth = MediaQuery.of(context).size.width;
     var sysHeight = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           title: Text("ADD VIDEO"),
+          backgroundColor: Colors.red,
         ),
         resizeToAvoidBottomPadding: false,
         body: _isUploading
             ? Center(
                 child: Column(
                   children: <Widget>[
+                    SizedBox(height: 20),
+                    Text("UPLOADING... Please wait it can take some time"),
+                    SizedBox(height: 20),
                     CircularProgressIndicator(),
-                    Text(
-                        "UPLOADING... Please wait till uploading complete...!"),
-                    Text("49% completed. Please wait..."),
                   ],
                 ),
               )
@@ -174,8 +167,8 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                               video: fl.path,
                               imageFormat: ImageFormat.JPEG,
                               maxWidth:
-                                  128, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
-                              quality: 25,
+                                  150, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
+                              quality: 50,
                             );
                             setState(() {
                               _fileData = uint8list;

@@ -7,6 +7,8 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:jewtube/model/downloaded_files.dart';
 import 'package:jewtube/util/Resources.dart';
 import 'package:jewtube/util/sqflite_helper.dart';
+import 'package:jewtube/view/offline_vidoe_play.dart';
+import 'package:jewtube/view/videoPlay.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -42,65 +44,72 @@ class DownloadFilesPageState extends State<DownloadFilesPage> {
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
-              file = File(Resources.listOfDownloadedFiles[index].fileLocation);
+              String filePath =
+                  Resources.listOfDownloadedFiles[index].fileLocation;
+              file = File(filePath);
               String filename = basenameWithoutExtension(file.path);
               getThumbnail(index);
-              return Padding(
-                padding: const EdgeInsets.all(9.0),
-                child: Row(
-                  children: [
-                    FutureBuilder<Uint8List>(
-                      future: getThumbnail(index),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<Uint8List> snapshot) {
-                        // When this builder is called, the Future is already resolved into snapshot.data
-                        // So snapshot.data contains the not-yet-correctly formatted Image.
-                        if (!snapshot.hasData) {
-                          return Container(
-                              width: 140,
-                              height: 80,
-                              child:
-                                  Center(child: CircularProgressIndicator()));
-                        }
-                        return Image.memory(snapshot.data, fit: BoxFit.cover);
-                      },
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Text(
-                        filename,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
+              return GestureDetector(
+                onTap: () {
+                  navigateToOfflineVideoPlayPage(context, filePath);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(9.0),
+                  child: Row(
+                    children: [
+                      FutureBuilder<Uint8List>(
+                        future: getThumbnail(index),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<Uint8List> snapshot) {
+                          // When this builder is called, the Future is already resolved into snapshot.data
+                          // So snapshot.data contains the not-yet-correctly formatted Image.
+                          if (!snapshot.hasData) {
+                            return Container(
+                                width: 140,
+                                height: 80,
+                                child:
+                                    Center(child: CircularProgressIndicator()));
+                          }
+                          return Image.memory(snapshot.data, fit: BoxFit.cover);
+                        },
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        shareFile(index);
-                      },
-                                          child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(Icons.share, color: Colors.grey),
+                      SizedBox(
+                        width: 10,
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        showAlertDialog(
-                            context,
-                            "Delete",
-                            "Are you sure you want to delete this video",
-                            index);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.delete,
-                          color: Colors.red,
+                      Expanded(
+                        child: Text(
+                          filename,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
-                  ],
+                      GestureDetector(
+                        onTap: () {
+                          shareFile(index);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(Icons.share, color: Colors.grey),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          showAlertDialog(
+                              context,
+                              "Delete",
+                              "Are you sure you want to delete this video",
+                              index);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -194,10 +203,18 @@ class DownloadFilesPageState extends State<DownloadFilesPage> {
 
   Future<void> shareFile(index) async {
     await FlutterShare.shareFile(
-      title: 'Share Video',
-      text: 'Share with friends',
-      filePath: Resources.listOfDownloadedFiles[index].fileLocation,
-      chooserTitle: 'Share with friends'
-    );
+        title: 'Share Video',
+        text: 'Share with friends',
+        filePath: Resources.listOfDownloadedFiles[index].fileLocation,
+        chooserTitle: 'Share with friends');
+  }
+
+  navigateToOfflineVideoPlayPage(context, String videoPath) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (builder) => OfflineVideoPlayer(
+                  oflineVideoPath: videoPath,
+                )));
   }
 }

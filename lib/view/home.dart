@@ -192,6 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     DialogButton(
                                       onPressed: () async {
                                         if (file != null) {
+                                          Navigator.pop(context);
                                           setState(() {
                                             _progressAddChannel = true;
                                           });
@@ -204,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 "name": filename,
                                                 "title": chnlName,
                                               });
-                                          print(response.data);
+                                          // print(response.data);
                                           getAllChannels();
                                           setState(() {
                                             _progressAddChannel = false;
