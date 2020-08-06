@@ -49,12 +49,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool downloaded = false;
   //Flutter download
   ReceivePort _port = ReceivePort();
-  String fileLocation;
 
   @override
   void initState() {
-    // _videoPlayerController = VideoPlayerController.network(videoModel.videoURL);
-    _videoPlayerController = VideoPlayerController.network("");
+    _videoPlayerController = VideoPlayerController.network(videoModel.videoURL);
+    // _videoPlayerController = VideoPlayerController.network("");
     //check if video is downloaded or not
     isDownloaded();
     super.initState();
@@ -121,7 +120,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         //we need fileLocation, fileUrl, time
         DownloadedFile downloadedFile = DownloadedFile(
             mp4Url: videoModel.mp4URL,
-            fileLocation: fileLocation,
+            fileLocation: Resources.fileLocation,
             downloadTime: DateTime.now().toString());
         int result =
             await databaseHelper.insertFile(downloadedFile: downloadedFile);
@@ -252,7 +251,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         title: videoModel.videoTitle,
         text: 'Share with friends',
         linkUrl: videoModel.videoURL,
-        chooserTitle: 'Example Chooser Title');
+        chooserTitle: 'Share with friends');
   }
 
   Future<void> downloadFile() async {
@@ -270,7 +269,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       if (status.isGranted) {
         final externalDir = await getExternalStorageDirectory();
         print("Directory: ${externalDir.path}/videoModel.videoTitle.mp4");
-        fileLocation = '${externalDir.path}/${videoModel.videoTitle}.mp4';
+        Resources.fileLocation = '${externalDir.path}/${videoModel.videoTitle}.mp4';
 
         final id = await FlutterDownloader.enqueue(
             url: videoModel.mp4URL,

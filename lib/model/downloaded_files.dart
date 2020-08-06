@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 class DownloadedFile {
+  int id;
   String mp4Url;
   String fileLocation;
   String downloadTime;
@@ -21,8 +22,14 @@ class DownloadedFile {
 
   //Convert Map object to DownloadedFile object
   DownloadedFile.fromMapObject(Map<String, dynamic> map) {
+    id = map['id'];
     fileLocation = map['location'];
     downloadTime = map['time'];
     mp4Url = map['url'];
+  }
+
+  @override
+  String toString() {
+    return 'id: $id   fileLocation: $fileLocation   filePath: $mp4Url   time: $downloadTime';
   }
 }

@@ -15,5 +15,6 @@ class Resources {
 
   //List of downloaded files
   static List<DownloadedFile> listOfDownloadedFiles = List();
+  static String fileLocation;
 
 }

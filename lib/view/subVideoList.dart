@@ -134,7 +134,7 @@ class _SubedVideoListState extends State<SubedVideoList> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: CircleAvatar(
-                                    radius: height * 0.04,
+                                    radius: height * 0.032,
                                     backgroundImage:
                                         _channelList[index].imgUrl == "" ||
                                                 _channelList[index].imgUrl == null

@@ -98,6 +98,7 @@ Future<void> loadDownloadedFilesList() {
       print('ListOfDownloadFile: '+Resources.listOfDownloadedFiles.toString());
     });
   });
+
 }
 
 showToast({@required String message}) {

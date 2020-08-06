@@ -1,4 +1,5 @@
 import 'package:jewtube/model/downloaded_files.dart';
+import 'package:jewtube/util/utils.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
@@ -11,6 +12,7 @@ class DatabaseHelper {
   DatabaseHelper.createInstance();
 
   String downloadTable = 'down_table';
+  String colId = 'id';
   String colTime = 'time';
   String colLocation = 'location';
   String colUrl = 'url';
@@ -37,7 +39,7 @@ class DatabaseHelper {
 
   void createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $downloadTable('
+        'CREATE TABLE $downloadTable($colId INTEGER PRIMARY KEY AUTOINCREMENT,'
         '$colLocation Text, $colTime Text, $colUrl Text)');
   }
 
@@ -79,13 +81,14 @@ class DatabaseHelper {
   // }
 
       //Delete Operation
-  Future<int> deleteFile({@required String url}) async {
+  Future<int> deleteFile({@required int id}) async {
     //get refrence to database
     Database db = await this.database;
 
     //first convert note object into map
-    var result = await db.delete(downloadTable, where: '$colLocation = $url');
-    //TODO: Delete video file from memory too
+    var result = await db.delete(downloadTable, where: '$colId = $id');
+    //when file is deleted from both memory and database then reload data
+    await loadDownloadedFilesList();
     return result;
   }
 
