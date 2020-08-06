@@ -7,6 +7,7 @@ class VideoModel {
       @required this.channelImage,
       @required this.videoTitle,
       @required this.videoURL,
+      @required this.mp4URL,
       @required this.videoId,
       @required this.thumbNail,
       @required this.sub,
@@ -17,6 +18,7 @@ class VideoModel {
   final String channelImage;
   final String videoTitle;
   final String videoURL;
+  final String mp4URL;
   final String thumbNail;
   bool sub;
   final String videoId;

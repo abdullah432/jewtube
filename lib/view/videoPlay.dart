@@ -1,16 +1,23 @@
+import 'dart:ui';
+
 import 'package:animated_card/animated_card.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:jewtube/model/downloaded_files.dart';
 import 'package:jewtube/model/video.dart';
 import 'package:jewtube/util/Resources.dart';
+import 'package:jewtube/util/sqflite_helper.dart';
 import 'package:jewtube/util/utils.dart';
 import 'package:jewtube/widgets/subscribe.dart';
 import 'package:jewtube/widgets/videoItemWidgetHorizontal.dart';
 import 'package:chewie/chewie.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:isolate';
 
 enum Download { NO, YES }
 enum DownloadState { INPROGRESS, SUCCESS, FAIL }
@@ -40,10 +47,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   Color beginColor = Colors.blueGrey;
   Color endColor = Colors.blue[900];
   bool downloaded = false;
+  //Flutter download
+  ReceivePort _port = ReceivePort();
+  String fileLocation;
 
   @override
   void initState() {
-    _videoPlayerController = VideoPlayerController.network(videoModel.videoURL);
+    // _videoPlayerController = VideoPlayerController.network(videoModel.videoURL);
+    _videoPlayerController = VideoPlayerController.network("");
+    //check if video is downloaded or not
+    isDownloaded();
     super.initState();
     //
     _animationController = AnimationController(
@@ -63,6 +76,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       looping: true,
       // autoInitialize: true,
     );
+
+    /* Flutter download */
+    _bindBackgroundIsolate();
+    FlutterDownloader.registerCallback(downloadCallback);
   }
 
   @override
@@ -70,7 +87,61 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _videoPlayerController.dispose();
     _chewieController.dispose();
     _animationController.dispose();
+    _unbindBackgroundIsolate();
     super.dispose();
+  }
+
+  isDownloaded() {
+    var contain = Resources.listOfDownloadedFiles
+        .where((element) => element.mp4Url == videoModel.mp4URL);
+    if (contain.isNotEmpty) downloaded = true;
+  }
+
+  void _bindBackgroundIsolate() {
+    bool isSuccess = IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    if (!isSuccess) {
+      _unbindBackgroundIsolate();
+      _bindBackgroundIsolate();
+      return;
+    }
+    _port.listen((dynamic data) async {
+      print('Data: ' + data.toString());
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+
+      if (status == DownloadTaskStatus.complete) {
+        print("completed");
+        _animationController.stop();
+        setState(() {
+          downloaded = true;
+        });
+        //save download data
+        DatabaseHelper databaseHelper = DatabaseHelper();
+        //we need fileLocation, fileUrl, time
+        DownloadedFile downloadedFile = DownloadedFile(
+            mp4Url: videoModel.mp4URL,
+            fileLocation: fileLocation,
+            downloadTime: DateTime.now().toString());
+        int result =
+            await databaseHelper.insertFile(downloadedFile: downloadedFile);
+        if (result != 0) {
+          //update DownloadedFilesList (inside Resourse class)
+          loadDownloadedFilesList();
+        }
+      }
+    });
+  }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    send.send([id, status, progress]);
   }
 
   @override
@@ -85,7 +156,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     //     "https://d3ofruocozqolb.cloudfront.net/9b928440-9d6c-43a4-9150-1d10705c4d2a/hls/jewtube-_-_-a1fb300d-84b6-4c07-bc8d-9ad7eeced748-_-_-TalkingTom2(9).m3u8")
     //   ..initialize().then((_) => setState(() {}));
 
-    print("AAAAAAAA   : " + videoModel.videoURL);
+    // print("AAAAAAAA   : " + videoModel.videoURL);
 
     // _chewieController = ChewieController(
     //   // videoPlayerController: VideoPlayerController.network(videoModel.videoURL)..initialize(),
@@ -96,8 +167,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     //   // autoInitialize: true,
     // );
     //}
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+    // double width = MediaQuery.of(context).size.width;
+    // double height = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -185,38 +256,50 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   Future<void> downloadFile() async {
-    beginColor = Colors.green;
-    _colorAnimation = ColorTween(begin: beginColor, end: endColor)
-        .animate(_animationController)
-          ..addListener(() {
-            setState(() {});
-          });
-    _animationController.repeat(reverse: true);
+    if (!downloaded) {
+      beginColor = Colors.green;
+      _colorAnimation = ColorTween(begin: beginColor, end: endColor)
+          .animate(_animationController)
+            ..addListener(() {
+              setState(() {});
+            });
+      _animationController.repeat(reverse: true);
 
-    // Future.delayed(Duration(seconds: 5)).then((value) => {
+      final status = await Permission.storage.request();
+
+      if (status.isGranted) {
+        final externalDir = await getExternalStorageDirectory();
+        print("Directory: ${externalDir.path}/videoModel.videoTitle.mp4");
+        fileLocation = '${externalDir.path}/${videoModel.videoTitle}.mp4';
+
+        final id = await FlutterDownloader.enqueue(
+            url: videoModel.mp4URL,
+            savedDir: externalDir.path,
+            fileName: "${videoModel.videoTitle}.mp4",
+            showNotification: true,
+            openFileFromNotification: false);
+      } else {
+        print("Permission Denied");
+      }
+    }else {
+      showToast(message: "Already Downloaded");
+    }
+
+    //dio logic start
+
+    // dio.download(dumyUrl, "${dir.path}JewTube.mp4",
+    //     onReceiveProgress: (rec, total) {
+    //   print('Rec: $rec, Total: $total');
+    // }, deleteOnError: true).catchError((onError) {
+    //   print('Download Error');
+    //   _animationController.stop();
+    // }).whenComplete(() {
+    //   print("Complete");
+    //   _animationController.stop();
     //   setState(() {
-    //     _animationController.stop();
     //     downloaded = true;
-    //   })
+    //   });
     // });
-
-    Dio dio = Dio();
-    String dumyUrl = "https://videoapp-destination-1067snc02adqb.s3.amazonaws.com/02fa2a9c-cab8-462b-af15-468614be9fbb/mp4/jewtube-_-_-781d7ca0-f7e5-444c-aa8b-be73573d98c8-_-_-El+Camino+Al+Exito_Mp4_Avc_Aac_16x9_1280x720p_24Hz_4.5Mbps_qvbr.mp4";
-    var dir = await getDownloadsDirectory();
-    print("Directory: ${dir.path}/JewTube2.mp4");
-    dio.download(dumyUrl, "${dir.path}JewTube.mp4",
-        onReceiveProgress: (rec, total) {
-      print('Rec: $rec, Total: $total');
-    }, deleteOnError: true).catchError((onError) {
-      print('Download Error');
-      _animationController.stop();
-    }).whenComplete(() {
-      print("Complete");
-      _animationController.stop();
-      setState(() {
-        downloaded = true;
-      });
-    });
 
     // dio.download(
     //     videoModel.videoURL, "${dir.path}/${videoModel.videoTitle}.mp4",

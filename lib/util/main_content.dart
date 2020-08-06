@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:jewtube/view/add_video.dart';
 import 'package:jewtube/view/admin_all_videos.dart';
 import 'package:jewtube/view/channelVideoList.dart';
+import 'package:jewtube/view/download_file_page.dart';
 import 'package:jewtube/view/subVideoList.dart';
 import 'package:jewtube/view/videoList.dart';
 import 'package:jewtube/view/videoPlay.dart';
@@ -27,6 +28,7 @@ class _MainContentState extends State<MainContent> {
         '/player': (context) => VideoPlayerScreen(),
         '/channel_page': (context) => ChannelVideoList(),
         '/admin_all_videos': (context) => AdminAllVideos(),
+        '/download_page': (context) => DownloadFilesPage(),
       },
     );
   }

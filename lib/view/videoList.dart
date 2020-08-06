@@ -33,6 +33,8 @@ class _VideoListScreenState extends State<VideoListScreen> {
             {
               setState(() {
                 _videoList.clear();
+                // print("getVideos (value): "+value.toString());
+                // print("getVideos (value['videos']): "+value['videos'].toString());
                 _videoList =  value['videos'];
 
                 // print(jsonEncode(_videoList));
@@ -87,10 +89,11 @@ class _VideoListScreenState extends State<VideoListScreen> {
     if (!init) {
       if (search != null && search['issearch']) {
         String searchTxt = search['txt'];
-        print("SSSSSSSSSSSSSSSSSSSS   " + searchTxt);
+        // print("SSSSSSSSSSSSSSSSSSSS   " + searchTxt);
         url = "http://${Resources.BASE_URL}/video/getvideos/search/${searchTxt.toString()}";
-          print("SSSSSSSSSSSSSSSSSSSS   " + url);
+          // print("SSSSSSSSSSSSSSSSSSSS   " + url);
       }
+      print("before calling getallvideos()");
       getAllVideos();
       init = true;
     }

@@ -362,6 +362,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           .pushReplacementNamed('/sub_page');
                       // _bodyWidget = SubedVideoList();
                       return;
+                    case 3:
+                      Resources.navigationKey.currentState
+                          .pushReplacementNamed('/download_page');
+                      return;
                     default:
                       // _bodyWidget = VideoListScreen();
                       Resources.navigationKey.currentState.pushReplacementNamed(
@@ -380,6 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             floatingActionButton: Resources.isAdmin
                 ? FloatingActionButton(
+                  backgroundColor: Colors.red,
                     onPressed: () {
                       Alert(
                         style: AlertStyle(isCloseButton: false),
