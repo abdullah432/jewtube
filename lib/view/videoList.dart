@@ -111,24 +111,18 @@ class _VideoListScreenState extends State<VideoListScreen> {
                         child: Container(
                           // elevation: 5,
                           child: VideoItemWidget(_videoList[index], () {
-                            // Resources.navigationKey.currentState.pushNamed(
-                            //     '/player',
-                            //     arguments: _videoList[index]);
-                            print(_videoList[index].videoURL);
-                            print(_videoList[index].channelID);
-                            print(_videoList[index]);
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (builder) =>
                                         VideoPlayerScreen(videoModel: _videoList[index])));
                           }, () {
-                            getAllVideos();
+                            // getAllVideos();
                           }),
                         ),
                       );
                     }),
               )
-            : Text("No Video Found");
+            : Center(child: Text("No Video Found"));
   }
 }

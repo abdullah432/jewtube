@@ -6,7 +6,7 @@ class Resources {
   // static FirebaseApp firebaseApp;
   static String userID = "";
   static bool isAdmin = false;
-  static String BASE_URL = "192.168.10.4:4444";
+  static String BASE_URL = "192.168.10.6:4444";
   // static String BASE_URL = "18.212.29.55:4444";
   static final GlobalKey<ScaffoldState> scaffoldKey =GlobalKey<ScaffoldState> ();
 

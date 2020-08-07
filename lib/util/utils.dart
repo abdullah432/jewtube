@@ -16,7 +16,7 @@ Future<Map> getVideos(String path, {bool needSubsInQuery = false}) async {
   var subArray = List();
 
   //retrieve subscribed channel list
-  // print("Resources.userID: "+Resources.userID);
+  //retrieve subarray will be used to determined as the video channel is subscribed or not
   if (Resources.userID != "") {
     Response sub = await Dio()
         .get("http://${Resources.BASE_URL}/subscribe/${Resources.userID}");

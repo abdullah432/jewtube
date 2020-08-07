@@ -11,6 +11,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jewtube/model/channel.dart';
 import 'package:jewtube/util/Resources.dart';
 import 'package:jewtube/util/main_content.dart';
+import 'package:jewtube/util/utils.dart';
 import 'package:jewtube/view/add_video.dart';
 import 'package:jewtube/view/channelVideoList.dart';
 import 'package:jewtube/view/login/constants/constants.dart';
@@ -210,16 +211,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                           setState(() {
                                             _progressAddChannel = false;
                                           });
+                                          file = null;
                                         } else {
                                           print("FILE NULL");
-                                          Fluttertoast.showToast(
-                                              msg: "No File Selected",
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.CENTER,
-                                              timeInSecForIos: 1,
-                                              backgroundColor: Colors.red,
-                                              textColor: Colors.white,
-                                              fontSize: 16.0);
+                                          showToast(
+                                              message: "No File Selected");
                                         }
                                       },
                                       child: Text(
@@ -358,6 +354,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           '/',
                           arguments: {'issearch': false, 'txt': ""});
                       return;
+                    case 1:
+                      Resources.navigationKey.currentState
+                          .pushReplacementNamed('/category_page');
+                      return;
                     case 2:
                       Resources.navigationKey.currentState
                           .pushReplacementNamed('/sub_page');
@@ -379,13 +379,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 bmnav.BottomNavItem(icon: Icons.home, label: 'Home'),
                 // bmnav.BottomNavItem(Icons.whatshot),
                 bmnav.BottomNavItem(icon: Icons.category, label: 'Categories'),
-                bmnav.BottomNavItem(icon: Icons.subscriptions, label: 'Subscriptions'),
-                bmnav.BottomNavItem(icon: Icons.file_download, label: 'Downloads')
+                bmnav.BottomNavItem(
+                    icon: Icons.subscriptions, label: 'Subscriptions'),
+                bmnav.BottomNavItem(
+                    icon: Icons.file_download, label: 'Downloads')
               ],
             ),
             floatingActionButton: Resources.isAdmin
                 ? FloatingActionButton(
-                  backgroundColor: Colors.red,
+                    backgroundColor: Colors.red,
                     onPressed: () {
                       Alert(
                         style: AlertStyle(isCloseButton: false),

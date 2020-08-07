@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'dart:typed_data';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jewtube/util/Resources.dart';
+import 'package:jewtube/util/utils.dart';
 import 'package:path/path.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -38,85 +39,59 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
   }
 
   File file;
+  //category parameters
+  List<String> listOfcategories = [
+    'Daily Dose',
+    'Torah Classes',
+    'Music',
+    'Movies'
+  ];
+  String selectedCategory;
 
   void uploadVideo(BuildContext context) async {
     if (file == null) {
-      Fluttertoast.showToast(
-          msg: "No Video Selected",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      showToast(message: "No Video Selected");
+    } else if (_txtTitle.text == null || _txtTitle.text == "") {
+      showToast(message: "Please enter a title");
+    } else if (selectedCategory == null) {
+      showToast(message: "Please select category");
     } else {
-      if (_txtTitle.text == null || _txtTitle.text == "") {
-        Fluttertoast.showToast(
-            msg: "Please enter a title",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      } else {
-        var uuid = Uuid().v4();
-        if (file != null) {
-          Dio dio = new Dio();
-          var filename = "jewtube-_-_-$uuid-_-_-" + (basename(file.path));
-          setState(() {
-            _titleEditEnable = false;
-            _isUploading = true;
-          });
-          var response = await dio
-              .post("http://${Resources.BASE_URL}/video/addVideo", data: {
-            "file": file.readAsBytesSync(),
-            "name": filename,
+      var uuid = Uuid().v4();
+      if (file != null) {
+        Dio dio = new Dio();
+        var filename = "jewtube-_-_-$uuid-_-_-" + (basename(file.path));
+        setState(() {
+          _titleEditEnable = false;
+          _isUploading = true;
+        });
+        var response = await dio
+            .post("http://${Resources.BASE_URL}/video/addVideo", data: {
+          "file": file.readAsBytesSync(),
+          "name": filename,
+          "title": _txtTitle.text,
+          "videoID": uuid,
+          "category": selectedCategory,
+          "channel": widget.channelID
+        });
+        print(response.data);
+        setState(() {
+          _isUploading = false;
+        });
+        if (response != null &&
+            response.data != null &&
+            response.data['status'] == 200) {
+          await Dio().post("http://${Resources.BASE_URL}/adminvideo", data: {
             "title": _txtTitle.text,
             "videoID": uuid,
-            "channel": widget.channelID
           });
-          print(response.data);
-          setState(() {
-            _isUploading = false;
-          });
-          if (response != null &&
-              response.data != null &&
-              response.data['status'] == 200) {
-            await Dio().post("http://${Resources.BASE_URL}/adminvideo", data: {
-              "title": _txtTitle.text,
-              "videoID": uuid,
-            });
 
-            Fluttertoast.showToast(
-                msg: "Upload Completed",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                backgroundColor: Colors.grey,
-                timeInSecForIos: 1,
-                textColor: Colors.white,
-                fontSize: 16.0);
-            // Navigator.of(context).pushReplacementNamed(HOME);
-          } else {
-            Fluttertoast.showToast(
-                msg: "Upload Error",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIos: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0);
-          }
+          showToast(message: "Upload Completed");
+          // Navigator.of(context).pushReplacementNamed(HOME);
         } else {
-          Fluttertoast.showToast(
-              msg: "No Video Selected",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIos: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0);
+          showToast(message: "Upload Error");
         }
+      } else {
+        showToast(message: "No Video Selected");
       }
     }
   }
@@ -125,6 +100,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
   Widget build(BuildContext context) {
     var sysWidth = MediaQuery.of(context).size.width;
     var sysHeight = MediaQuery.of(context).size.height;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -143,56 +119,79 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                   ],
                 ),
               )
-            : Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    TextField(
-                      enabled: _titleEditEnable,
-                      controller: _txtTitle,
-                      decoration: InputDecoration(labelText: "TITLE"),
-                    ),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    Container(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () async {
-                            File fl =
-                                await FilePicker.getFile(type: FileType.VIDEO);
-                            final uint8list =
-                                await VideoThumbnail.thumbnailData(
-                              video: fl.path,
-                              imageFormat: ImageFormat.JPEG,
-                              maxWidth:
-                                  150, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
-                              quality: 50,
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      TextField(
+                        enabled: _titleEditEnable,
+                        controller: _txtTitle,
+                        decoration: InputDecoration(labelText: "TITLE"),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          hint: Text('Please choose a category'),
+                          value: selectedCategory,
+                          items: listOfcategories.map((String value) {
+                            return new DropdownMenuItem<String>(
+                              value: value,
+                              child: new Text(value),
                             );
+                          }).toList(),
+                          onChanged: (value) {
+                            print(value);
                             setState(() {
-                              _fileData = uint8list;
-                              file = fl;
+                              selectedCategory = value;
                             });
                           },
-                          child: _fileData == null
-                              ? Image.asset(
-                                  "assets/addVideo.png",
-                                  width: sysWidth * 0.8,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.memory(_fileData),
                         ),
                       ),
-                    ),
-                    Container(
-                      child: RaisedButton(
-                          child: Text("SUBMIT"),
-                          onPressed: () {
-                            uploadVideo(context);
-                          }),
-                    )
-                  ],
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Container(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () async {
+                              File fl = await FilePicker.getFile(
+                                  type: FileType.VIDEO);
+                              final uint8list =
+                                  await VideoThumbnail.thumbnailData(
+                                video: fl.path,
+                                imageFormat: ImageFormat.JPEG,
+                                maxWidth:
+                                    150, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
+                                quality: 50,
+                              );
+                              setState(() {
+                                _fileData = uint8list;
+                                file = fl;
+                              });
+                            },
+                            child: _fileData == null
+                                ? Image.asset(
+                                    "assets/addVideo.png",
+                                    width: sysWidth * 0.8,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.memory(_fileData),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: RaisedButton(
+                            child: Text("SUBMIT"),
+                            onPressed: () {
+                              uploadVideo(context);
+                            }),
+                      )
+                    ],
+                  ),
                 ),
               ),
       ),
