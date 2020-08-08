@@ -341,6 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
             bottomNavigationBar: bmnav.BottomNav(
               // color: ThemeData.dark().primaryColor,
               iconStyle: bmnav.IconStyle(onSelectColor: Colors.red),
+              labelStyle: bmnav.LabelStyle(textStyle: TextStyle(fontSize: 11)),
               index: _navIndex,
               onTap: (i) {
                 print(i);

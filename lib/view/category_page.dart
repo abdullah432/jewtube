@@ -103,22 +103,26 @@ class CategoryPageState extends State<CategoryPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.assignment,
-                          color: selectedCategoryIndex == 0
-                              ? selectedColor
-                              : unselectedColor,
+                        Flexible(
+                          child: Icon(
+                            Icons.assignment,
+                            color: selectedCategoryIndex == 0
+                                ? selectedColor
+                                : unselectedColor,
+                          ),
                         ),
                         SizedBox(
                           width: 7.0,
                         ),
-                        Text("Daily Dose",
-                            style: TextStyle(
-                              color: selectedCategoryIndex == 0
-                                  ? selectedColor
-                                  : unselectedColor,
-                              fontWeight: FontWeight.w500,
-                            ))
+                        Flexible(
+                          child: Text("Daily Dose",
+                              style: TextStyle(
+                                color: selectedCategoryIndex == 0
+                                    ? selectedColor
+                                    : unselectedColor,
+                                fontWeight: FontWeight.w500,
+                              )),
+                        )
                       ],
                     ),
                   ),
@@ -141,22 +145,26 @@ class CategoryPageState extends State<CategoryPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.local_florist,
-                          color: selectedCategoryIndex == 1
-                              ? selectedColor
-                              : unselectedColor,
+                        Flexible(
+                          child: Icon(
+                            Icons.local_florist,
+                            color: selectedCategoryIndex == 1
+                                ? selectedColor
+                                : unselectedColor,
+                          ),
                         ),
                         SizedBox(
-                          width: 7.0,
+                          width: 5.0,
                         ),
-                        Text("Torah Classes",
-                            style: TextStyle(
-                              color: selectedCategoryIndex == 1
-                                  ? selectedColor
-                                  : unselectedColor,
-                              fontWeight: FontWeight.w500,
-                            ))
+                        Flexible(
+                          child: Text("Torah Classes",
+                              style: TextStyle(
+                                color: selectedCategoryIndex == 1
+                                    ? selectedColor
+                                    : unselectedColor,
+                                fontWeight: FontWeight.w500,
+                              )),
+                        )
                       ],
                     ),
                   ),
@@ -282,11 +290,14 @@ class CategoryPageState extends State<CategoryPage> {
       // print(response.data);
       if (response.statusCode == 200) {
         List<VideoModel> list = (response.data as List)
-            .map((v) => VideoModel.fromJson(json: v, subArray: subArray)).toList();
+            .map((v) => VideoModel.fromJson(json: v, subArray: subArray))
+            .toList();
 
         final existing = Set<String>();
         // List<VideoModel> uniqueCards = list.where((video) => existing.add(video.videoId)).toList();
-        final unique = list.where((videoModel) => existing.add(videoModel.videoId)).toList();
+        final unique = list
+            .where((videoModel) => existing.add(videoModel.videoId))
+            .toList();
         print(unique);
         // print(list[0].videoId);
         return unique.toList();
